@@ -48,3 +48,8 @@ func RandomCurrency() string {
 	n := len(currencies)
 	return currencies[rand.Intn(n)]
 }
+
+// random amount generation including negative number
+func RandomAmount() int64 {
+	return RandomInt(-2000, 2000)
+}

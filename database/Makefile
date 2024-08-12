@@ -19,6 +19,7 @@ create-db:
 	docker exec -it $(NAME) createdb --username=$(USER) --owner=$(USER) $(DB_NAME)
 
 drop-db:
+	docker exec -it $(NAME) psql -U $(USER) -c "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$(DB_NAME)' AND pid <> pg_backend_pid();"
 	docker exec -it $(NAME) dropdb $(DB_NAME)
 
 migrate-up-db:
@@ -30,6 +31,6 @@ migrate-down-db:
 gen-query :
 	sqlc generate
 test-db :
-	go test -v -cover ./...
+	go test -v -cover -count=1 ./...
 
 .PHONY: build-db-img launch-db-con create-db drop-db migrate-up-db migrate-down-db gen-query test-db
