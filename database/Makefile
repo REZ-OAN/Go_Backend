@@ -21,6 +21,8 @@ create-db:
 drop-db:
 	docker exec -it $(NAME) psql -U $(USER) -c "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$(DB_NAME)' AND pid <> pg_backend_pid();"
 	docker exec -it $(NAME) dropdb $(DB_NAME)
+delete-all-data-db:
+	docker exec -it $(NAME) psql -U $(USER) -d $(DB_NAME) -c "TRUNCATE accounts CASCADE;"
 
 migrate-up-db:
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose up
