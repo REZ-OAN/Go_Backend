@@ -38,8 +38,11 @@ jobs:
         sudo mv migrate.linux-amd64 /usr/bin/migrate
         which migrate
     - name: Wait for PostgreSQL to be ready
-      run: ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
-      
+      run: |
+        curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+        chmod +x wait-for-it.sh
+        ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
+
     - name: Run migrations
       run: make migrate-up-db-git
       working-directory: ./database
