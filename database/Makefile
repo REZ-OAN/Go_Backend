@@ -9,6 +9,7 @@ DB_NAME=simple_bank
 IMAGE=simple-bank-db
 DB_DATA_VOLUME_MOUNT=/home/baymax/Documents/SimpleBank/
 MIGRATE_PATH=/home/baymax/Documents/SimpleBank/backend/database/migration
+GIT_MIGRATE_PATH=./database/migration
 DATABASE_CONNECTION_URI=postgresql://$(USER):$(PASSWORD)@$(HOST):$(HOST_PORT)/$(DB_NAME)?sslmode=disable
 build-db-img:
 	docker build -t $(IMAGE) .
@@ -27,7 +28,8 @@ delete-all-data-db:
 
 migrate-up-db:
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose up
-
+migrate-up-db-git:
+	migrate -path $(GIT_MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose up
 migrate-down-db:
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose down
 
