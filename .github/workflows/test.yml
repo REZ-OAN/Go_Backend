@@ -37,7 +37,9 @@ jobs:
         curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
         sudo mv migrate.linux-amd64 /usr/bin/migrate
         which migrate
-
+    - name: Wait for PostgreSQL to be ready
+      run: ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
+      
     - name: Run migrations
       run: make migrate-up-db-git
       working-directory: ./database
