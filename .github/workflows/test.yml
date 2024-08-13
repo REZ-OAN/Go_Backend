@@ -28,8 +28,7 @@ jobs:
 
     - name: Start PostgreSQL service
       run: |
-        make launch-db-con
-        make create-db
+        make launch-db-con-with-db-create
         docker ps
       working-directory: ./database
 

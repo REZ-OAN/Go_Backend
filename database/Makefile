@@ -14,7 +14,8 @@ build-db-img:
 	docker build -t $(IMAGE) .
 launch-db-con:
 	docker run --name $(NAME) -p $(HOST_PORT):5432 -e POSTGRES_PASSWORD=$(PASSWORD) -e POSTGRES_USER=$(USER) -v $(DB_DATA_VOLUME_MOUNT):/var/lib/postgresql/data -d $(IMAGE) 
-
+launch-db-con-with-db-create:
+	docker run --name $(NAME) -p $(HOST_PORT):5432 -e POSTGRES_PASSWORD=$(PASSWORD) -e POSTGRES_USER=$(USER) -e POSTGRES_DB=$(DB_NAME) -d $(IMAGE) 
 create-db:
 	docker exec -it $(NAME) createdb --username=$(USER) --owner=$(USER) $(DB_NAME)
 
