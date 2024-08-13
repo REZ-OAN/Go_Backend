@@ -52,7 +52,7 @@ jobs:
         ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
 
     - name: Run migrations
-      run: make migrate-db-up-git
+      run: make migrate-up-db-git
       working-directory: ./database
 
     - name: Test

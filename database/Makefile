@@ -31,6 +31,7 @@ migrate-up-db:
 
 migrate-up-db-git:
 	migrate -path $(GIT_MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose up
+	
 migrate-down-db:
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI) -verbose down
 
