@@ -52,7 +52,7 @@ jobs:
         ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
 
     - name: Run migrations
-      run: migrate -path ./migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+      run: make migrate-db-up-git
       working-directory: ./database
 
     - name: Test
