@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: testing database
 
 on:
   push:
@@ -7,29 +7,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   test:
     name: Test
     runs-on: ubuntu-latest
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: secret
-          POSTGRES_USER: root
-          POSTGRES_DB: simple_bank
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
+
     steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -39,22 +20,7 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-
-    - name: Install golang-migrate
-      run: |
-        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
-        sudo mv migrate.linux-amd64 /usr/bin/migrate
-        which migrate
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
-        chmod +x wait-for-it.sh
-        ./wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL is up"
-
-    - name: Run migrations
-      run: make migrate-up-db-git
-      working-directory: ./database
-
-    - name: Test
-      run: make test-db
+      
+    - name: Run Test simple_bank
+      run: make test-dev
       working-directory: ./database
