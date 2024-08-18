@@ -23,4 +23,3 @@ jobs:
       
     - name: Run Test simple_bank
       run: make test-dev
-      working-directory: ./database

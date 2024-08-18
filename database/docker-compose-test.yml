@@ -11,7 +11,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - ../test_db:/var/lib/postgresql/data
+      - ../../test_db:/var/lib/postgresql/data
       
   migrate:
     image: migrate/migrate

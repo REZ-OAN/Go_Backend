@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ../dev_db:/var/lib/postgresql/data
+      - ../../dev_db:/var/lib/postgresql/data
       
   migrate:
     image: migrate/migrate

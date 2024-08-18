@@ -1,0 +1,30 @@
+start-server :
+	path="." name="test" ext="env" go run main.go 
+
+test: setup-test-env test-test-db clean-test-env
+
+test-dev: setup-dev-env test-dev-db clean-dev-env
+
+setup-test-env:
+	cd ./database && docker compose -f docker-compose-test.yml up -d
+
+setup-dev-env:
+	cd ./database && docker compose -f docker-compose.yml up -d
+
+clean-test-env:
+	cd ./database && docker compose -f docker-compose-test.yml down
+
+clean-dev-env:
+	cd ./database && docker compose -f docker-compose.yml down
+
+test-test-db:
+	cd ./database && path="../../" name="test" ext="env" go test -v -cover -count=1 ./...
+
+test-dev-db:
+	cd ./database && path="../../" name="dev" ext="env" go test -v -cover -count=1 ./...
+
+gen-query:
+	cd ./database && sqlc generate
+
+
+.PHONY: start-server test test-dev setup-test-env setup-dev-env clean-test-env clean-dev-env test-test-db test-dev-db gen-query
