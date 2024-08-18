@@ -1,6 +1,7 @@
-start-server :
+start-test-server :
 	path="." name="test" ext="env" go run main.go 
-
+start-dev-server :
+	path="." name="dev" ext="env" go run main.go
 test: setup-test-env test-test-db clean-test-env
 
 test-dev: setup-dev-env test-dev-db clean-dev-env
