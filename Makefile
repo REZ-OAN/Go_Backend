@@ -24,6 +24,12 @@ test-test-db:
 test-dev-db:
 	cd ./database && path="../../" name="dev" ext="env" go test -v -cover -count=1 ./...
 
+test-api :
+	go test -v -cover -count=1 ./api
+gen-mock-db:	
+	mockgen -package mock_db -destination database/mock/store.go  github.com/REZ-OAN/simplebank/database/sqlc Store
+
+
 gen-query:
 	cd ./database && sqlc generate
 

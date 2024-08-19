@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"simple-bank/api"
-	db "simple-bank/database/sqlc"
-	"simple-bank/utils"
+
+	"github.com/REZ-OAN/simplebank/utils"
+
+	db "github.com/REZ-OAN/simplebank/database/sqlc"
+
+	"github.com/REZ-OAN/simplebank/api"
 
 	_ "github.com/lib/pq"
 )

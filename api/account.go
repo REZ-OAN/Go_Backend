@@ -3,7 +3,8 @@ package api
 import (
 	"database/sql"
 	"net/http"
-	db "simple-bank/database/sqlc"
+
+	db "github.com/REZ-OAN/simplebank/database/sqlc"
 
 	"github.com/gin-gonic/gin"
 )

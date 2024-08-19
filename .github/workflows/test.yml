@@ -21,5 +21,7 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
       
-    - name: Run Test simple_bank
+    - name: Run Test db
       run: make test-dev
+    - name: Run Test api
+      run: make test-api
