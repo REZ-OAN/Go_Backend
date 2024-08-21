@@ -1,22 +1,38 @@
+PASSWORD=secret
+USER=wizard
+TEST_PORT=5434
+DEV_PORT=5432
+HOST=localhost
+TEST_NAME=simple_bank_test
+DEV_NAME=simple_bank_dev
+DB_NAME=simple_bank
+IMAGE=postgres
+DB_DATA_VOLUME_MOUNT_TEST=./db_data/test_db
+DB_DATA_VOLUME_MOUNT_DEV=./db_data/dev_db
+MIGRATE_PATH=./database/migration
+DATABASE_CONNECTION_URI_TEST=postgresql://$(USER):$(PASSWORD)@$(HOST):$(TEST_PORT)/$(DB_NAME)?sslmode=disable
+DATABASE_CONNECTION_URI_DEV=postgresql://$(USER):$(PASSWORD)@$(HOST):$(DEV_PORT)/$(DB_NAME)?sslmode=disable
+
 start-test-server : setup-test-env
 	path="." name="test" ext="env" go run main.go 
-start-dev-server :
+start-dev-server : setup-dev-env
 	path="." name="dev" ext="env" go run main.go
-test: setup-test-env test-test-db clean-test-env
 
-test-dev: setup-dev-env test-dev-db clean-dev-env
+test: setup-test-env wait-for-postgres-test migrate-up-test test-test-db clean-test-env
+
+test-dev: setup-dev-env wait-for-postgres-dev migrate-up-dev test-dev-db clean-dev-env
 
 setup-test-env:
-	cd ./database && docker compose -f docker-compose-test.yml up -d
+	docker run --name $(TEST_NAME) -p $(TEST_PORT):5432 -e POSTGRES_PASSWORD=$(PASSWORD) -e POSTGRES_USER=$(USER) -e POSTGRES_DB=$(DB_NAME) -v $(DB_DATA_VOLUME_MOUNT_TEST):/var/lib/postgresql/data -d $(IMAGE)
 
 setup-dev-env:
-	cd ./database && docker compose -f docker-compose.yml up -d
+	docker run --name $(DEV_NAME) -p $(DEV_PORT):5432 -e POSTGRES_PASSWORD=$(PASSWORD) -e POSTGRES_USER=$(USER) -e POSTGRES_DB=$(DB_NAME) -v $(DB_DATA_VOLUME_MOUNT_DEV):/var/lib/postgresql/data -d $(IMAGE)
 
 clean-test-env:
-	cd ./database && docker compose -f docker-compose-test.yml down
+	docker rm -f -v $(TEST_NAME)
 
 clean-dev-env:
-	cd ./database && docker compose -f docker-compose.yml down
+	docker rm -f -v $(DEV_NAME)
 
 test-test-db:
 	cd ./database && path="../../" name="test" ext="env" go test -v -cover -count=1 ./...
@@ -26,9 +42,40 @@ test-dev-db:
 
 test-api :
 	go test -v -cover -count=1 ./api
+
+create-new-migration:
+	migrate create -ext sql -dir ./database/migration -seq add_users
+
+migrate-up-test :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose up
+
+migrate-up-dev :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose up
+
+migrate-down-test :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose down
+
+migrate-down-dev :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose down
+
 gen-mock-db:	
 	mockgen -package mock_db -destination database/mock/store.go  github.com/REZ-OAN/simplebank/database/sqlc Store
 
+wait-for-postgres-test:
+	@echo "Waiting for PostgreSQL container to be ready..."
+	until docker exec $(TEST_NAME) pg_isready -h localhost -p 5432 > /dev/null 2>&1; do \
+		echo "Waiting for PostgreSQL to be ready..."; \
+		sleep 1; \
+	done
+	@echo "PostgreSQL is ready!"
+
+wait-for-postgres-dev:
+	@echo "Waiting for PostgreSQL container to be ready..."
+	until docker exec $(DEV_NAME) pg_isready -h localhost -p 5432 > /dev/null 2>&1; do \
+		echo "Waiting for PostgreSQL to be ready..."; \
+		sleep 1; \
+	done
+	@echo "PostgreSQL is ready!"
 
 gen-query:
 	cd ./database && sqlc generate
