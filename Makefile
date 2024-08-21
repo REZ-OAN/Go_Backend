@@ -1,4 +1,4 @@
-start-test-server :
+start-test-server : setup-test-env
 	path="." name="test" ext="env" go run main.go 
 start-dev-server :
 	path="." name="dev" ext="env" go run main.go
