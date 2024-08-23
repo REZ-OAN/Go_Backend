@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -52,4 +53,22 @@ func RandomCurrency() string {
 // random amount generation including negative number
 func RandomAmount() int64 {
 	return RandomInt(-2000, 2000)
+}
+
+func RandomFullName() (firstName, lastName string) {
+	firstNames := []string{"Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack"}
+	lastNames := []string{"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Martinez", "Lopez"}
+
+	rand.Seed(time.Now().UnixNano()) // Seed the random number generator
+	firstName = firstNames[rand.Intn(len(firstNames))]
+	lastName = lastNames[rand.Intn(len(lastNames))]
+	return
+}
+
+func RandomUserName(first_name string) string {
+	return fmt.Sprintf("%s-%s", first_name, RandomString(5))
+}
+
+func RandomEmail() string {
+	return fmt.Sprintf("%s@gmail.com", RandomString(5))
 }

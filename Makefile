@@ -12,13 +12,14 @@ DB_DATA_VOLUME_MOUNT_DEV=./db_data/dev_db
 MIGRATE_PATH=./database/migration
 DATABASE_CONNECTION_URI_TEST=postgresql://$(USER):$(PASSWORD)@$(HOST):$(TEST_PORT)/$(DB_NAME)?sslmode=disable
 DATABASE_CONNECTION_URI_DEV=postgresql://$(USER):$(PASSWORD)@$(HOST):$(DEV_PORT)/$(DB_NAME)?sslmode=disable
-
+VERSION = 1
 start-test-server : setup-test-env
 	path="." name="test" ext="env" go run main.go 
 start-dev-server : setup-dev-env
 	path="." name="dev" ext="env" go run main.go
 
 test: setup-test-env wait-for-postgres-test migrate-up-test test-test-db clean-test-env
+
 
 test-dev: setup-dev-env wait-for-postgres-dev migrate-up-dev test-dev-db clean-dev-env
 
@@ -48,18 +49,27 @@ create-new-migration:
 
 migrate-up-test :
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose up
-
 migrate-up-dev :
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose up
+migrate-up-test-by-one :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose up $(VERSION)
+
+migrate-up-dev-by-one :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose up $(VERSION)
+
+migrate-down-test-by-one :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose down $(VERSION)
+
+migrate-down-dev-by-one :
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose down $(VERSION)
 
 migrate-down-test :
 	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_TEST) -verbose down
 
 migrate-down-dev :
-	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose down
-
+	migrate -path $(MIGRATE_PATH) -database $(DATABASE_CONNECTION_URI_DEV) -verbose down 
 gen-mock-db:	
-	mockgen -package mock_db -destination database/mock/store.go  github.com/REZ-OAN/simplebank/database/sqlc Store
+	mockgen -package mock_db -destination ./database/mock/store.go  github.com/REZ-OAN/simplebank/database/sqlc Store
 
 wait-for-postgres-test:
 	@echo "Waiting for PostgreSQL container to be ready..."
