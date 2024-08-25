@@ -66,7 +66,7 @@ func RandomFullName() (firstName, lastName string) {
 }
 
 func RandomUserName(first_name string) string {
-	return fmt.Sprintf("%s-%s", first_name, RandomString(5))
+	return fmt.Sprintf("%s%s", first_name, RandomString(5))
 }
 
 func RandomEmail() string {
