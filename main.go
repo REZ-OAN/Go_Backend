@@ -36,7 +36,11 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store)
+	server, err := api.NewServer(store, config)
+	if err != nil {
+		log.Fatal("cannot create server ", err)
+		return
+	}
 	SERVER_URL := fmt.Sprintf("%s:%s", config.SERVER_ADDRESS, config.SERVER_PORT)
 	err = server.Start(SERVER_URL)
 

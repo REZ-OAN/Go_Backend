@@ -93,7 +93,7 @@ func TestGetAccountAPI(t *testing.T) {
 			store := mock_db.NewMockStore(controller)
 			tc.buildStubs(store)
 			// start test http server and send http request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// declaring the url path
@@ -198,7 +198,7 @@ func TestCreateAccountAPI(t *testing.T) {
 			store := mock_db.NewMockStore(controller)
 			tc.buildStubs(store)
 			// start test http server and send http request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			// Marshal body data to JSON
 			data, err := json.Marshal(tc.body)
@@ -314,7 +314,7 @@ func TestListAccountsAPI(t *testing.T) {
 			store := mock_db.NewMockStore(controller)
 			tc.buildStubs(store)
 			// start test http server and send http request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := "/accounts"
@@ -442,7 +442,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			// start test http server and send http request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// Marshal body data to JSON
