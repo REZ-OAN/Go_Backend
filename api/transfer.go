@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	db "github.com/REZ-OAN/simplebank/database/sqlc"
+	"github.com/REZ-OAN/simplebank/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,11 +25,19 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	_, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
+	fromAcccount, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
+
 	if !valid {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if fromAcccount.Owner != authPayload.Username {
+		err := errors.New("from_account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	_, valid = server.validAccount(ctx, req.ToAccountID, req.Currency)
 	if !valid {
 		return

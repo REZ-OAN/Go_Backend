@@ -2,15 +2,16 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	db "github.com/REZ-OAN/simplebank/database/sqlc"
+	"github.com/REZ-OAN/simplebank/token"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -22,9 +23,9 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Currency: db.Currency(req.Currency),
 		Balance:  0,
 	}
@@ -62,6 +63,13 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if authPayload.Username != account.Owner {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	ctx.JSON(http.StatusOK, account)
 }
 
@@ -78,7 +86,10 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
@@ -97,25 +108,33 @@ type updateRequestBody struct {
 }
 
 type updateRequestUri struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	ID    int64  `form:"id" binding:"required,min=1"`
+	Owner string `form:"owner" binding:"required"`
 }
 
 func (server *Server) updateAccount(ctx *gin.Context) {
 	var reqBody updateRequestBody
 	var reqUri updateRequestUri
 
-	if err := ctx.ShouldBindUri(&reqUri); err != nil {
+	if err := ctx.ShouldBindQuery(&reqUri); err != nil {
+
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
+	if authPayload.Username != reqUri.Owner {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	arg := db.UpdateAccountParams{
 		ID:      reqUri.ID,
+		Owner:   reqUri.Owner,
 		Balance: reqBody.Balance,
 	}
 	account, err := server.store.UpdateAccount(ctx, arg)

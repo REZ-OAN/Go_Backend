@@ -139,7 +139,7 @@ func (mr *MockStoreMockRecorder) GetAccount(arg0, arg1 interface{}) *gomock.Call
 }
 
 // GetAccountForUpdate mocks base method
-func (m *MockStore) GetAccountForUpdate(arg0 context.Context, arg1 int64) (db.Account, error) {
+func (m *MockStore) GetAccountForUpdate(arg0 context.Context, arg1 string) (db.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccountForUpdate", arg0, arg1)
 	ret0, _ := ret[0].(db.Account)
