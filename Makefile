@@ -26,7 +26,7 @@ start-dev-server : create-docker-network setup-dev-env
 	docker run --name $(BACKEND) --network $(NETWORK_NAME) --ip $(BACKEND_IP) -p 8080:8080 -e GIN_MODE=release -d simple_bank:latest 
 
 build-dev-image :
-	docker build --no-cache -t simple_bank:latest .
+	docker build --no-cache -f ./Dockerfile.staged -t simple_bank:latest .
 
 test: setup-test-env wait-for-postgres-test migrate-up-test test-test-db clean-test-env
 
