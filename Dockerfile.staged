@@ -9,6 +9,10 @@ RUN go mod download
 
 RUN go build -o main main.go
 
+RUN apk add curl 
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+
 # Stage 2: Run
 FROM alpine:3.20
 
@@ -19,6 +23,13 @@ WORKDIR /app
 COPY --from=builder /app/main .
 
 COPY ./dev.env .
+
+COPY --from=builder /app/migrate.linux-amd64 ./migrate
+
+COPY ./database/migration ./migrations
+
+COPY ./start.sh .
+
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
@@ -29,3 +40,4 @@ ENV path="." \
 
 # Command to run the executable
 CMD ["./main"]
+ENTRYPOINT [ "./start.sh" ]
