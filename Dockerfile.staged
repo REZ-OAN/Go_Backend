@@ -1,0 +1,41 @@
+# Stage 1: Build
+FROM golang:1.22.5-alpine3.20 AS builder
+
+WORKDIR /app 
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o main main.go
+
+RUN apk add curl 
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+
+# Stage 2: Run
+FROM alpine:3.20
+
+# Set the Current Working Directory inside the final container
+WORKDIR /app
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/main .
+
+COPY ./dev.env .
+
+COPY --from=builder /app/migrate.linux-amd64 ./migrate
+
+COPY ./database/migration ./migrations
+
+COPY ./start.sh .
+
+COPY ./wait-for.sh .   
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
+
+# Set environment variables
+ENV path="." \
+    name="dev" \
+    ext="env"
