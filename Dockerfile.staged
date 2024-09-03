@@ -30,6 +30,8 @@ COPY ./database/migration ./migrations
 
 COPY ./start.sh .
 
+COPY ./wait-for.sh .   
+
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
@@ -37,7 +39,3 @@ EXPOSE 8080
 ENV path="." \
     name="dev" \
     ext="env"
-
-# Command to run the executable
-CMD ["./main"]
-ENTRYPOINT [ "./start.sh" ]

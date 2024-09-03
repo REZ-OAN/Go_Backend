@@ -25,6 +25,14 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+    entrypoint:
+      [
+        "/app/wait-for.sh",
+        "postgres:5432",
+        "--",
+        "/app/start.sh"
+      ]
+    command: [ "/app/main" ]
     networks:
       simple_bank_net:
         ipv4_address: 10.10.10.3
