@@ -39,3 +39,5 @@ EXPOSE 8080
 ENV path="." \
     name="dev" \
     ext="env"
+CMD [ "/app/main" ]
+ENTRYPOINT  ["/app/start.sh"]
